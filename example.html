@@ -6,15 +6,15 @@
     <title>Galaxy GVL credentials extractor</title>
 </head>
 <body onload="checkFileAPI();">
-For NeCTAR clouds, <a href="https://dashboard.rc.nectar.org.au/" target="_blank">login to the dashboard</a> first. You can then either:<br>
-<ul><li>
-Download the credentials for your default allocation <a href="https://dashboard.rc.nectar.org.au/project/access_and_security/api_access/ec2/">here</a> 
-</li>
-<li>
-Get the credential files for a different NeCTAR allocation as per <a href="https://docs.google.com/document/d/1D8DZBjdvqjO04RizMj-qObmx6PHPzhCTItdJJvrR1w4/pub#h.8prc1xmtw0sa" target="_blank">these instructions</a> 
-</li>
-</ul>
-Select the relvant ".zip" credentials file for automatic inclusion below:<input type="file" onchange='readText(this)' />
+For easy completion of NeCTAR cloud Access Key details, locate the relvant ".zip" credentials file for the allocation you wish to launch GVL instance:<input type="file" onchange='readText(this)' />
+<br><br>
+If you require your credentials file, <a href="https://dashboard.rc.nectar.org.au/" target="_blank">login to the dashboard</a> first. If you have more than one allocation, select the one you wish to launch the GVL on.
+
+Then <a href="https://dashboard.rc.nectar.org.au/project/access_and_security/api_access/ec2/">click here</a> to download.
+<br><br>
+For informtaion on downloading NeCTAR credential files and entering them in manually, see <a href="https://docs.google.com/document/d/1D8DZBjdvqjO04RizMj-qObmx6PHPzhCTItdJJvrR1w4/pub#h.8prc1xmtw0sa" target="_blank">these instructions</a> 
+
+ 
 <hr>
 <div class="control-group required">
         <label class="control-label" for="id_access_key">Access key
