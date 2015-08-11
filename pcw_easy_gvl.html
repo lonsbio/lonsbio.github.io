@@ -52,38 +52,36 @@ NeCTAR security credentials (which can be used to create, modify and delete virt
 
               <input type="file" onchange='readText(this)' />
 </div></li>
-<li> Fill in your 'Institutional email', and a new 'Cluster name' and 'Password' the GVL Launcher window  </li>
+<li>Copy the extracted 'Access key' and 'Secret key' values to the respective fileds in the GVL launcher window</li>
+<li> Fill in 'Institutional email', and a new 'Cluster name' and 'Password' the GVL Launcher window  </li>
 
-            <li>Click 'Create a cluster' in the GVL Launcher window  </li>
+            <li>Click 'Create a cluster' in the GVL Launcher window, and note the server details when complete.  </li>
             </ol>
+            <a class="btn" data-toggle="collapse" data-target="#viewdetails">Advanced &raquo;</a>
+            <div id="viewdetails" class="collapse">
+            <ul>
+              <li>Access details and further instructions will be available in the GVL launcher window.</li>
+              <li>There are many options in the GVL Launcher window below. After you are familiar with NeCTAR and the GVL, you should create new servers via the launcher page directly at <a href="https://launch.genome.edu.au/launch" target="_blank">https://launch.genome.edu.au/launch</a></li>
+              <li>If you have more than one allocation, select the one you wish to launch the GVL on from within the NeCTAR dashboard fist before downloading credentials files in step (2)</li>
+            <li>Submit an application to the merit-based allocation process <a href="http://support.rc.nectar.org.au/dashboard/allocation_request.html" target="_blank">here</a></li>
 
-<p>
-  The GVL Launcher window will now start the GVL setup process. </p>
+            <li>For information on downloading NeCTAR credential files and entering them in manually, see <a href="https://docs.google.com/document/d/1D8DZBjdvqjO04RizMj-qObmx6PHPzhCTItdJJvrR1w4/pub#h.8prc1xmtw0sa" target="_blank">these instructions</a></li>
+
+          </ul>
+
+        </div>
 
 
 
 
-              <a class="btn" data-toggle="collapse" data-target="#viewdetails">Advanced &raquo;</a>
-              <div id="viewdetails" class="collapse">
-              <ul>
-                <li>Access details and further instructions will be available in the GVL launcher window.</li>
-                <li>There are many options in the GVL Launcher window below. After you are familiar with NeCTAR and the GVL, you should create new servers via the launcher page directly at <a href="https://launch.genome.edu.au/launch" target="_blank">https://launch.genome.edu.au/launch</a></li>
-                <li>If you have more than one allocation, select the one you wish to launch the GVL on from within the NeCTAR dashboard fist before downloading credentials files in step (2)</li>
-              <li>Submit an application to the merit-based allocation process <a href="http://support.rc.nectar.org.au/dashboard/allocation_request.html" target="_blank">here</a></li>
 
-              <li>For information on downloading NeCTAR credential files and entering them in manually, see <a href="https://docs.google.com/document/d/1D8DZBjdvqjO04RizMj-qObmx6PHPzhCTItdJJvrR1w4/pub#h.8prc1xmtw0sa" target="_blank">these instructions</a></li>
+<!-- a class="btn" data-toggle="collapse" data-target="#accessdetails">View extracted details &raquo;</a-->
 
-            </ul>
-
-          </div>
-
-<a class="btn" data-toggle="collapse" data-target="#accessdetails">View extracted details &raquo;</a>
-
-<div id="accessdetails" class="collapse">
+<div id="accessdetails" class="">
   <div class="alert alert-warning" role="alert">
 <strong>Note:</strong> These will be populated after step (3)
-</div>
-<div class="control-group required">
+<br/>
+<br/>
         <label class="control-label" for="id_access_key">Access key
         </label>
         <div class="controls">
@@ -91,15 +89,12 @@ NeCTAR security credentials (which can be used to create, modify and delete virt
             <input id="id_access_key" name="access_key" class="input_xlarge disableable" type="text" />
 
 
-            <br/><span class="help-inline"><span class="muted">Your Access Key ID.</muted></span>
 
 
         </div>
-      </div>
 
 
 <br/>
-      <div class="control-group required">
         <label class="control-label" for="id_secret_key">Secret key
         </label>
         <div class="controls">
@@ -111,11 +106,14 @@ NeCTAR security credentials (which can be used to create, modify and delete virt
 
 
 
-            <br/><span class="help-inline"><span class="muted">Your Secret Access Key.</muted></span>
 
             </div>
       </div>
+
       </div>
+
+
+
       </div>
 
 

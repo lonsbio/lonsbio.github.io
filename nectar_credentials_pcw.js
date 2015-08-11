@@ -53,15 +53,6 @@ function getkeys(txt) {
   access_element.value = results[0];
   secret_element.value = results[1];
 
-
-	// also insert into iframe
-var iframe = document.getElementById('gvllaunch');
-var gvldoc = iframe.contentDocument || iframe.contentWindow.document;
-  var access_element_gvl = gvldoc.getElementById('id_access_key');
-  var secret_element_gvl = gvldoc.getElementById('id_secret_key');
-  access_element_gvl.value = results[0];
-  secret_element_gvl.value = results[1];
-
 }
 
 
