@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+            <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+                <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+
+
+<script src="nectar_credentials_pcw.js"></script>
+
+    <title>Easy GVL setup</title>
+</head>
+<body onload="checkFileAPI();">
+<br><br>
+<div class="container">
+  <div class="alert alert-danger" role="alert">
+<strong>Warning!<br/></strong>This page increases the ease at which a GVL instance can be created, with a decrease in security. Namely, you are asked to upload your
+NeCTAR security credentials (which can be used to create, modify and delete virtual machines and data on the NeCTAR service) to a webpage (this one) for processing. In general, this would not be recommended.
+</div>
+<div class="jumbotron">
+          <a href="http:///www.plantcellwalls.org.au/"><img src="http://www.plantcellwalls.org.au/images/logo.gif"/></a>
+
+        <h1>Easy GVL setup</h1>
+        <h3> by Andrew Lonsdale (@lonsbio)</h3>
+        <br/>
+
+        <p class="lead">A <a href="https://genome.edu.au/">Genomics Virtual Lab (GVL)</a> is a great way to test and learn bioinformatics techniques.</p>
+
+        <p>
+
+          If you've never used the NeCTAR cloud however, it can be tricky to setup a GVL!</p>
+
+          <p>
+          This page by default will setup a small tutorial based GVL for testing purposes. Just follow these easy steps to have a GVL in 5 minutes!</p>
+
+
+
+          <ol>
+            <li> Using your university central staff/student details, <a href="https://dashboard.rc.nectar.org.au/" target="_blank">login to the NeCTAR dashboard </a> in a new tab</li>
+            <li> Return to this page and <a href="https://dashboard.rc.nectar.org.au/project/access_and_security/api_access/ec2/">click here</a> to download your credentials. Keep them safe.
+  </li>
+            <li> <div>Locate the file downloaded in (2) here:
+
+              <input type="file" onchange='readText(this)' />
+</div></li>
+<li> Fill in your 'Institutional email', and a new 'Cluster name' and 'Password' the GVL Launcher window  </li>
+
+            <li>Click 'Create a cluster' in the GVL Launcher window  </li>
+            </ol>
+
+<p>
+  The GVL Launcher window will now start the GVL setup process. </p>
+
+
+
+
+              <a class="btn" data-toggle="collapse" data-target="#viewdetails">Advanced &raquo;</a>
+              <div id="viewdetails" class="collapse">
+              <ul>
+                <li>Access details and further instructions will be available in the GVL launcher window.</li>
+                <li>There are many options in the GVL Launcher window below. After you are familiar with NeCTAR and the GVL, you should create new servers via the launcher page directly at <a href="https://launch.genome.edu.au/launch" target="_blank">https://launch.genome.edu.au/launch</a></li>
+                <li>If you have more than one allocation, select the one you wish to launch the GVL on from within the NeCTAR dashboard fist before downloading credentials files in step (2)</li>
+              <li>Submit an application to the merit-based allocation process <a href="http://support.rc.nectar.org.au/dashboard/allocation_request.html" target="_blank">here</a></li>
+
+              <li>For information on downloading NeCTAR credential files and entering them in manually, see <a href="https://docs.google.com/document/d/1D8DZBjdvqjO04RizMj-qObmx6PHPzhCTItdJJvrR1w4/pub#h.8prc1xmtw0sa" target="_blank">these instructions</a></li>
+
+            </ul>
+
+          </div>
+
+<a class="btn" data-toggle="collapse" data-target="#accessdetails">View extracted details &raquo;</a>
+
+<div id="accessdetails" class="collapse">
+  <div class="alert alert-warning" role="alert">
+<strong>Note:</strong> These will be populated after step (3)
+</div>
+<div class="control-group required">
+        <label class="control-label" for="id_access_key">Access key
+        </label>
+        <div class="controls">
+
+            <input id="id_access_key" name="access_key" class="input_xlarge disableable" type="text" />
+
+
+            <br/><span class="help-inline"><span class="muted">Your Access Key ID.</muted></span>
+
+
+        </div>
+      </div>
+
+
+<br/>
+      <div class="control-group required">
+        <label class="control-label" for="id_secret_key">Secret key
+        </label>
+        <div class="controls">
+
+            <input id="id_secret_key" name="secret_key" class="input_xlarge disableable" type="text" />
+
+
+
+
+
+
+            <br/><span class="help-inline"><span class="muted">Your Secret Access Key.</muted></span>
+
+            </div>
+      </div>
+      </div>
+      </div>
+
+
+      <h1> <a href="https://launch.genome.edu.au/launch" target="_blank">GVL Launcher</a> </h1>
+
+      <iframe src="https://launch.genome.edu.au/launch" id="gvllaunch" style="position: absolute; height: 100%; width: 100% border: none" width="1024" height="768" >
+
+<hr/>
+
+
+        </div>
+
+
+</body>
+
+</html>
