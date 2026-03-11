@@ -11,9 +11,9 @@ redirect_from:
   <script type="module" src="https://cdn.jsdelivr.net/npm/bsky-embed@latest/dist/bsky-embed.es.js" async></script>
 
   <bsky-embed
-    username="vincentwill.com"
-    limit="5"
-    load-more="true"
+    username="lonsbio.bsky.social"
+    limit="1"
+    load-more="false"
   >
   </bsky-embed>
 
