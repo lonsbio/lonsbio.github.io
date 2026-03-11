@@ -7,6 +7,12 @@ redirect_from:
   - /about.html
 ---
 
+<bluesky-latest-post
+  handle="lonsbio.bsky.app"
+  mode="light">
+</bluesky-latest-post>
+
+
 
   <script type="module" src="https://cdn.jsdelivr.net/npm/bsky-embed@latest/dist/bsky-embed.es.js" async></script>
 
