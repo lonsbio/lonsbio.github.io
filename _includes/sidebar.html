@@ -21,5 +21,17 @@
       {% include nav_list nav=page.sidebar.nav %}
     {% endif %}
   {% endif %}
+
+Recent BlueSky Posts
+
+  <script type="module" src="https://cdn.jsdelivr.net/npm/bsky-embed@latest/dist/bsky-embed.es.js" async></script>
+
+  <bsky-embed
+    username="lonsbio.bsky.social"
+    limit="1"
+    load-more="false"
+  >
+  </bsky-embed>
+
   </div>
 {% endif %}
