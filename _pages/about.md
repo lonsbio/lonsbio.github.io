@@ -8,7 +8,7 @@ redirect_from:
 ---
 
 <bluesky-latest-post
-  handle="lonsbio.bsky.app"
+  handle="lonsbio.bsky.social"
   mode="light">
 </bluesky-latest-post>
 

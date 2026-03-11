@@ -25,13 +25,12 @@ class BlueskyLatestPost extends HTMLElement {
   }
 
   get excludeReplies() {
-    const attr = this.getAttribute("exclude-replies");
-    return attr !== "false";
+    return this.getAttribute("exclude-replies") !== "false";
   }
 
   get maxCheck() {
     const n = parseInt(this.getAttribute("max-check") || "10", 10);
-    return Number.isFinite(n) && n > 0 ? Math.min(n, 30) : 10;
+    return Number.isFinite(n) && n > 0 ? Math.min(n, 100) : 10;
   }
 
   renderLoading() {
@@ -43,84 +42,103 @@ class BlueskyLatestPost extends HTMLElement {
   }
 
   renderError(message) {
-    const safeHandle = this.escapeHtml(this.handle || "profile");
+    const safe = this.escapeHtml(message);
+    const profile = this.handle
+      ? `<div class="bsky-latest-post__fallback">
+           <a href="https://bsky.app/profile/${encodeURIComponent(this.handle)}" target="_blank" rel="noopener noreferrer">
+             View @${this.escapeHtml(this.handle)} on Bluesky
+           </a>
+         </div>`
+      : "";
+
     this.innerHTML = `
       <div class="bsky-latest-post__status">
-        ${this.escapeHtml(message)}
-        ${
-          this.handle
-            ? `<div class="bsky-latest-post__fallback">
-                 <a href="https://bsky.app/profile/${encodeURIComponent(this.handle)}" target="_blank" rel="noopener noreferrer">
-                   View @${safeHandle} on Bluesky
-                 </a>
-               </div>`
-            : ""
-        }
+        ${safe}
+        ${profile}
       </div>
     `;
   }
 
-  async load() {
-    if (!this.handle) {
-      this.renderError("Missing Bluesky handle.");
-      return;
-    }
+  async fetchJson(url) {
+    const res = await fetch(url, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Accept": "application/json"
+      }
+    });
+
+    const text = await res.text();
+    let data = null;
 
     try {
-      const url =
-        `https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed` +
-        `?actor=${encodeURIComponent(this.handle)}` +
-        `&limit=${encodeURIComponent(this.maxCheck)}`;
-
-      const res = await fetch(url, {
-        headers: { Accept: "application/json" }
-      });
-
-      if (!res.ok) {
-        throw new Error(`Bluesky API returned ${res.status}`);
-      }
-
-      const data = await res.json();
-      const items = Array.isArray(data.feed) ? data.feed : [];
-
-      const postItem = items.find((item) => {
-        // Skip reposts
-        if (item?.reason) return false;
-
-        // Skip replies if requested
-        if (this.excludeReplies && item?.reply) return false;
-
-        // Must have a usable post payload
-        return Boolean(item?.post?.uri && item?.post?.cid);
-      });
-
-      if (!postItem) {
-        this.renderError("No suitable recent post found.");
-        return;
-      }
-
-      this.renderEmbed(postItem.post);
-    } catch (err) {
-      console.error(err);
-      this.renderError("Could not load the latest Bluesky post.");
+      data = text ? JSON.parse(text) : null;
+    } catch {
+      // leave as null
     }
+
+    if (!res.ok) {
+      const msg =
+        data?.message ||
+        data?.error ||
+        text ||
+        `HTTP ${res.status}`;
+      throw new Error(msg);
+    }
+
+    return data;
+  }
+
+  async resolveDid(handle) {
+    // Resolve handle first; this is more reliable than passing raw handle around.
+    const url =
+      `https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle` +
+      `?handle=${encodeURIComponent(handle)}`;
+
+    const data = await this.fetchJson(url);
+    if (!data?.did) {
+      throw new Error(`Could not resolve handle: ${handle}`);
+    }
+    return data.did;
+  }
+
+  async getLatestPost(did) {
+    // Official author feed endpoint; public and unauthenticated.
+    // Use feed filtering to avoid replies if requested.
+    const filter = this.excludeReplies
+      ? "posts_no_replies"
+      : "posts_with_replies";
+
+    const url =
+      `https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed` +
+      `?actor=${encodeURIComponent(did)}` +
+      `&filter=${encodeURIComponent(filter)}` +
+      `&limit=${encodeURIComponent(this.maxCheck)}`;
+
+    const data = await this.fetchJson(url);
+    const items = Array.isArray(data?.feed) ? data.feed : [];
+
+    const item = items.find((entry) => {
+      // Skip repost wrappers
+      if (entry?.reason) return false;
+      return Boolean(entry?.post?.uri && entry?.post?.cid);
+    });
+
+    if (!item?.post?.uri || !item?.post?.cid) {
+      throw new Error("No suitable recent post found.");
+    }
+
+    return item.post;
   }
 
   renderEmbed(post) {
-    const wrapper = document.createElement("div");
-    wrapper.className = "bsky-latest-post__embed";
-
     const blockquote = document.createElement("blockquote");
     blockquote.className = "bluesky-embed";
     blockquote.setAttribute("data-bluesky-uri", post.uri);
     blockquote.setAttribute("data-bluesky-cid", post.cid);
     blockquote.setAttribute("data-bluesky-embed-color-mode", this.mode);
 
-    // Lightweight fallback content before Bluesky's script upgrades it
-    const fallbackText =
-      post.record?.text ||
-      "View this post on Bluesky";
-
+    const fallbackText = (post.record && post.record.text) || "View on Bluesky";
     const fallbackLink = document.createElement("a");
     fallbackLink.href = this.toBskyUrl(post.uri);
     fallbackLink.target = "_blank";
@@ -134,31 +152,39 @@ class BlueskyLatestPost extends HTMLElement {
     blockquote.appendChild(document.createTextNode("— "));
     blockquote.appendChild(fallbackLink);
 
-    wrapper.appendChild(blockquote);
     this.innerHTML = "";
-    this.appendChild(wrapper);
+    this.appendChild(blockquote);
 
-    this.injectEmbedScript();
+    this.ensureEmbedScript();
   }
 
-  injectEmbedScript() {
-    // Re-add the official script so newly inserted blockquotes get upgraded
+  ensureEmbedScript() {
+    const existing = document.querySelector('script[src="https://embed.bsky.app/static/embed.js"]');
+
+    if (existing) {
+      const replacement = document.createElement("script");
+      replacement.async = true;
+      replacement.src = "https://embed.bsky.app/static/embed.js";
+      replacement.charset = "utf-8";
+      existing.replaceWith(replacement);
+      return;
+    }
+
     const script = document.createElement("script");
     script.async = true;
     script.src = "https://embed.bsky.app/static/embed.js";
     script.charset = "utf-8";
-    this.appendChild(script);
+    document.body.appendChild(script);
   }
 
   toBskyUrl(atUri) {
-    // at://did:plc:.../app.bsky.feed.post/3xyz
     const match = /^at:\/\/([^/]+)\/app\.bsky\.feed\.post\/([^/]+)$/.exec(atUri);
     if (!match) {
       return `https://bsky.app/profile/${encodeURIComponent(this.handle)}`;
     }
-    const did = match[1];
+    const actor = match[1];
     const rkey = match[2];
-    return `https://bsky.app/profile/${did}/post/${rkey}`;
+    return `https://bsky.app/profile/${actor}/post/${rkey}`;
   }
 
   escapeHtml(str) {
@@ -169,6 +195,22 @@ class BlueskyLatestPost extends HTMLElement {
       '"': "&quot;",
       "'": "&#39;"
     }[ch]));
+  }
+
+  async load() {
+    if (!this.handle) {
+      this.renderError("Missing Bluesky handle.");
+      return;
+    }
+
+    try {
+      const did = await this.resolveDid(this.handle);
+      const post = await this.getLatestPost(did);
+      this.renderEmbed(post);
+    } catch (err) {
+      console.error("Bluesky latest post widget error:", err);
+      this.renderError(`Could not load latest post: ${err.message}`);
+    }
   }
 }
 
