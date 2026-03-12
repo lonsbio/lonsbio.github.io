@@ -6,6 +6,40 @@ redirect_from:
   - /about/
   - /about.html
 ---
+<bluesky-latest-posts
+  handle="lonsbio.bsky.social"
+  count="6"
+  layout="grid"
+  columns="3"
+  gap="0.75rem"
+  uniform-height="true"
+  box-height="420"
+  expandable="true"
+  show-expand-only-when-needed="true">
+</bluesky-latest-posts>
+
+<bluesky-latest-posts
+  feed-url="https://bsky.app/profile/did:plc:blxmuzekw7pzdleszr65w5zo/feed/aaanzotspf23o"
+  count="8"
+  layout="grid"
+  min-width="340"
+  gap="1.25rem"
+  uniform-height="true"
+  box-height="440"
+  expandable="true"
+  show-expand-only-when-needed="false">
+</bluesky-latest-posts>
+
+<bluesky-latest-posts
+  handle="lonsbio.bsky.social"
+  count="4"
+  layout="stack"
+  gap="1rem"
+  uniform-height="true"
+  box-height="400"
+  expandable="true">
+</bluesky-latest-posts>
+
 
 
 # demo

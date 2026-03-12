@@ -18,15 +18,10 @@ bluesky-latest-posts {
 
 .bsky-latest-posts__list {
   display: grid;
-  gap: 1rem;
 }
 
 .bsky-latest-posts__list--stack {
   grid-template-columns: 1fr;
-}
-
-.bsky-latest-posts__list--grid {
-  /* JS sets gridTemplateColumns directly */
 }
 
 .bsky-latest-posts__item {

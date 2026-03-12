@@ -12,9 +12,11 @@ class BlueskyLatestPosts extends HTMLElement {
       "layout",
       "columns",
       "min-width",
+      "gap",
       "uniform-height",
       "box-height",
-      "expandable"
+      "expandable",
+      "show-expand-only-when-needed"
     ];
   }
 
@@ -33,8 +35,6 @@ class BlueskyLatestPosts extends HTMLElement {
   get source() {
     const explicit = (this.getAttribute("source") || "").trim().toLowerCase();
     if (explicit === "user" || explicit === "feed") return explicit;
-
-    // Auto-detect feed mode if a feed identifier is present
     if (this.feedUri || this.feedUrl) return "feed";
     return "user";
   }
@@ -77,12 +77,17 @@ class BlueskyLatestPosts extends HTMLElement {
 
   get columns() {
     const n = parseInt(this.getAttribute("columns") || "", 10);
-    return Number.isFinite(n) && n > 0 ? Math.min(n, 6) : null;
+    return Number.isFinite(n) && n > 0 ? Math.min(n, 12) : null;
   }
 
   get minWidth() {
     const n = parseInt(this.getAttribute("min-width") || "320", 10);
     return Number.isFinite(n) && n >= 180 ? n : 320;
+  }
+
+  get gap() {
+    const raw = (this.getAttribute("gap") || "1rem").trim();
+    return raw || "1rem";
   }
 
   get uniformHeight() {
@@ -96,6 +101,10 @@ class BlueskyLatestPosts extends HTMLElement {
 
   get expandable() {
     return this.getAttribute("expandable") !== "false";
+  }
+
+  get showExpandOnlyWhenNeeded() {
+    return this.getAttribute("show-expand-only-when-needed") !== "false";
   }
 
   renderLoading() {
@@ -180,7 +189,6 @@ class BlueskyLatestPosts extends HTMLElement {
       }
 
       const parts = url.pathname.split("/").filter(Boolean);
-      // /profile/{actor}/feed/{rkey}
       if (parts.length < 4 || parts[0] !== "profile" || parts[2] !== "feed") {
         throw new Error("Feed URL must look like /profile/{actor}/feed/{rkey}.");
       }
@@ -196,6 +204,7 @@ class BlueskyLatestPosts extends HTMLElement {
 
   async resolveFeedUri() {
     if (this.feedUri) return this.feedUri;
+
     if (!this.feedUrl) {
       throw new Error("Missing feed-uri or feed-url for feed source.");
     }
@@ -224,7 +233,7 @@ class BlueskyLatestPosts extends HTMLElement {
 
     const posts = items
       .filter((entry) => {
-        if (entry?.reason) return false; // skip repost wrappers
+        if (entry?.reason) return false;
         if (this.excludeReplies && entry?.reply) return false;
         return Boolean(entry?.post?.uri && entry?.post?.cid);
       })
@@ -268,8 +277,8 @@ class BlueskyLatestPosts extends HTMLElement {
   renderEmbeds(posts) {
     const wrapper = document.createElement("div");
     wrapper.className = `bsky-latest-posts__list bsky-latest-posts__list--${this.layout}`;
+    wrapper.style.gap = this.gap;
 
-    // Reliable grid sizing in JS
     if (this.layout === "grid") {
       if (this.columns) {
         wrapper.style.gridTemplateColumns = `repeat(${this.columns}, minmax(0, 1fr))`;
@@ -314,8 +323,9 @@ class BlueskyLatestPosts extends HTMLElement {
       viewport.appendChild(blockquote);
       item.appendChild(viewport);
 
+      let toggle = null;
       if (this.uniformHeight && this.expandable) {
-        const toggle = document.createElement("button");
+        toggle = document.createElement("button");
         toggle.type = "button";
         toggle.className = "bsky-latest-posts__toggle";
         toggle.textContent = "Expand";
@@ -328,6 +338,10 @@ class BlueskyLatestPosts extends HTMLElement {
           toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
         });
 
+        if (this.showExpandOnlyWhenNeeded) {
+          toggle.hidden = true;
+        }
+
         item.appendChild(toggle);
       }
 
@@ -337,6 +351,7 @@ class BlueskyLatestPosts extends HTMLElement {
     this.innerHTML = "";
     this.appendChild(wrapper);
     this.ensureEmbedScript();
+    this.scheduleOverflowCheck();
   }
 
   ensureEmbedScript() {
@@ -356,6 +371,57 @@ class BlueskyLatestPosts extends HTMLElement {
     script.src = "https://embed.bsky.app/static/embed.js";
     script.charset = "utf-8";
     document.body.appendChild(script);
+  }
+
+  scheduleOverflowCheck() {
+    if (!this.uniformHeight || !this.expandable) return;
+
+    const run = () => this.updateExpandButtonsIfNeeded();
+
+    requestAnimationFrame(() => {
+      run();
+      setTimeout(run, 300);
+      setTimeout(run, 800);
+      setTimeout(run, 1500);
+    });
+  }
+
+  updateExpandButtonsIfNeeded() {
+    const items = this.querySelectorAll(".bsky-latest-posts__item--uniform");
+
+    items.forEach((item) => {
+      const viewport = item.querySelector(".bsky-latest-posts__viewport");
+      const toggle = item.querySelector(".bsky-latest-posts__toggle");
+      if (!viewport || !toggle) return;
+
+      const expanded = item.classList.contains("is-expanded");
+      const maxHeight = this.boxHeight;
+
+      let contentHeight;
+
+      if (expanded) {
+        const prevMaxHeight = viewport.style.maxHeight;
+        viewport.style.maxHeight = "none";
+        contentHeight = viewport.scrollHeight;
+        viewport.style.maxHeight = prevMaxHeight;
+      } else {
+        contentHeight = viewport.scrollHeight;
+      }
+
+      const needsExpand = contentHeight > maxHeight + 4;
+
+      if (this.showExpandOnlyWhenNeeded) {
+        toggle.hidden = !needsExpand;
+      } else {
+        toggle.hidden = false;
+      }
+
+      if (!needsExpand && !expanded) {
+        item.classList.remove("is-expandable");
+      } else {
+        item.classList.add("is-expandable");
+      }
+    });
   }
 
   toBskyUrl(atUri) {
