@@ -7,6 +7,30 @@ redirect_from:
   - /about.html
 ---
 
+
+# demo
+
+<bluesky-latest-posts
+  handle="lonsbio.bsky.social"
+  count="4"
+  layout="stack"
+  max-check="20"
+  exclude-replies="true"
+  mode="system">
+</bluesky-latest-posts>
+
+# demo grid
+
+<bluesky-latest-posts
+  handle="lonsbio.bsky.social"
+  count="6"
+  layout="grid"
+  max-check="30"
+  exclude-replies="true"
+  mode="system">
+</bluesky-latest-posts>
+
+
 <bluesky-latest-post
   handle="lonsbio.bsky.social"
   mode="light">

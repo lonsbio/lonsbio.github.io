@@ -1,6 +1,6 @@
 class BlueskyLatestPosts extends HTMLElement {
   static get observedAttributes() {
-    return ["handle", "mode", "exclude-replies", "max-check", "count"];
+    return ["handle", "mode", "exclude-replies", "max-check", "count", "layout"];
   }
 
   connectedCallback() {
@@ -36,6 +36,11 @@ class BlueskyLatestPosts extends HTMLElement {
   get count() {
     const n = parseInt(this.getAttribute("count") || "3", 10);
     return Number.isFinite(n) && n > 0 ? Math.min(n, 20) : 3;
+  }
+
+  get layout() {
+    const value = (this.getAttribute("layout") || "stack").trim().toLowerCase();
+    return ["stack", "grid"].includes(value) ? value : "stack";
   }
 
   renderLoading() {
@@ -115,7 +120,7 @@ class BlueskyLatestPosts extends HTMLElement {
 
     const posts = items
       .filter((entry) => {
-        if (entry?.reason) return false; // skip repost wrappers
+        if (entry?.reason) return false;
         return Boolean(entry?.post?.uri && entry?.post?.cid);
       })
       .map((entry) => entry.post)
@@ -130,7 +135,7 @@ class BlueskyLatestPosts extends HTMLElement {
 
   renderEmbeds(posts) {
     const wrapper = document.createElement("div");
-    wrapper.className = "bsky-latest-posts__list";
+    wrapper.className = `bsky-latest-posts__list bsky-latest-posts__list--${this.layout}`;
 
     posts.forEach((post) => {
       const item = document.createElement("div");
