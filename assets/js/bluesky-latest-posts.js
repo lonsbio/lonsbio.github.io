@@ -25,6 +25,13 @@ class BlueskyLatestPosts extends HTMLElement {
     this.load();
   }
 
+  disconnectedCallback() {
+    if (this._resizeObserver) {
+      this._resizeObserver.disconnect();
+      this._resizeObserver = null;
+    }
+  }
+
   attributeChangedCallback() {
     if (this.isConnected) {
       this.renderLoading();
@@ -288,13 +295,20 @@ class BlueskyLatestPosts extends HTMLElement {
     }
 
     posts.forEach((post, index) => {
-      const item = document.createElement("div");
+      const item = document.createElement("article");
       item.className = "bsky-latest-posts__item";
 
       if (this.uniformHeight) {
         item.classList.add("bsky-latest-posts__item--uniform");
         item.style.setProperty("--bsky-box-height", `${this.boxHeight}px`);
       }
+
+      const cardLink = document.createElement("a");
+      cardLink.className = "bsky-latest-posts__cardlink";
+      cardLink.href = this.toBskyUrl(post.uri);
+      cardLink.target = "_blank";
+      cardLink.rel = "noopener noreferrer";
+      cardLink.setAttribute("aria-label", "Open Bluesky post");
 
       const viewport = document.createElement("div");
       viewport.className = "bsky-latest-posts__viewport";
@@ -307,40 +321,40 @@ class BlueskyLatestPosts extends HTMLElement {
       blockquote.setAttribute("data-bluesky-embed-color-mode", this.mode);
 
       const fallbackText = (post.record && post.record.text) || "View on Bluesky";
-      const fallbackLink = document.createElement("a");
-      fallbackLink.href = this.toBskyUrl(post.uri);
-      fallbackLink.target = "_blank";
-      fallbackLink.rel = "noopener noreferrer";
-      fallbackLink.textContent = "View on Bluesky";
+      const fallbackP = document.createElement("p");
+      fallbackP.textContent = fallbackText;
 
-      const p = document.createElement("p");
-      p.textContent = fallbackText;
-
-      blockquote.appendChild(p);
-      blockquote.appendChild(document.createTextNode("— "));
-      blockquote.appendChild(fallbackLink);
-
+      blockquote.appendChild(fallbackP);
       viewport.appendChild(blockquote);
-      item.appendChild(viewport);
+      cardLink.appendChild(viewport);
+      item.appendChild(cardLink);
 
       let toggle = null;
       if (this.uniformHeight && this.expandable) {
         toggle = document.createElement("button");
         toggle.type = "button";
         toggle.className = "bsky-latest-posts__toggle";
-        toggle.textContent = "Expand";
+        toggle.innerHTML = `
+          <span class="bsky-latest-posts__toggle-icon" aria-hidden="true">▾</span>
+          <span class="sr-only">Expand post</span>
+        `;
         toggle.setAttribute("aria-expanded", "false");
         toggle.setAttribute("aria-controls", viewport.id);
-
-        toggle.addEventListener("click", () => {
-          const expanded = item.classList.toggle("is-expanded");
-          toggle.textContent = expanded ? "Collapse" : "Expand";
-          toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
-        });
 
         if (this.showExpandOnlyWhenNeeded) {
           toggle.hidden = true;
         }
+
+        toggle.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          const expanded = item.classList.toggle("is-expanded");
+          toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+          toggle.innerHTML = expanded
+            ? `<span class="bsky-latest-posts__toggle-icon" aria-hidden="true">▴</span><span class="sr-only">Collapse post</span>`
+            : `<span class="bsky-latest-posts__toggle-icon" aria-hidden="true">▾</span><span class="sr-only">Expand post</span>`;
+        });
 
         item.appendChild(toggle);
       }
@@ -380,10 +394,25 @@ class BlueskyLatestPosts extends HTMLElement {
 
     requestAnimationFrame(() => {
       run();
-      setTimeout(run, 300);
-      setTimeout(run, 800);
+      setTimeout(run, 250);
+      setTimeout(run, 750);
       setTimeout(run, 1500);
+      setTimeout(run, 2500);
     });
+
+    if ("ResizeObserver" in window) {
+      if (this._resizeObserver) {
+        this._resizeObserver.disconnect();
+      }
+
+      this._resizeObserver = new ResizeObserver(() => {
+        this.updateExpandButtonsIfNeeded();
+      });
+
+      this.querySelectorAll(".bsky-latest-posts__viewport").forEach((el) => {
+        this._resizeObserver.observe(el);
+      });
+    }
   }
 
   updateExpandButtonsIfNeeded() {
@@ -396,19 +425,10 @@ class BlueskyLatestPosts extends HTMLElement {
 
       const expanded = item.classList.contains("is-expanded");
       const maxHeight = this.boxHeight;
+      const contentHeight = viewport.scrollHeight;
+      const needsExpand = contentHeight > maxHeight + 6;
 
-      let contentHeight;
-
-      if (expanded) {
-        const prevMaxHeight = viewport.style.maxHeight;
-        viewport.style.maxHeight = "none";
-        contentHeight = viewport.scrollHeight;
-        viewport.style.maxHeight = prevMaxHeight;
-      } else {
-        contentHeight = viewport.scrollHeight;
-      }
-
-      const needsExpand = contentHeight > maxHeight + 4;
+      item.classList.toggle("is-expandable", needsExpand);
 
       if (this.showExpandOnlyWhenNeeded) {
         toggle.hidden = !needsExpand;
@@ -416,10 +436,13 @@ class BlueskyLatestPosts extends HTMLElement {
         toggle.hidden = false;
       }
 
-      if (!needsExpand && !expanded) {
-        item.classList.remove("is-expandable");
-      } else {
-        item.classList.add("is-expandable");
+      if (!needsExpand && expanded) {
+        item.classList.remove("is-expanded");
+        toggle.setAttribute("aria-expanded", "false");
+        toggle.innerHTML = `
+          <span class="bsky-latest-posts__toggle-icon" aria-hidden="true">▾</span>
+          <span class="sr-only">Expand post</span>
+        `;
       }
     });
   }
