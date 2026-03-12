@@ -31,8 +31,12 @@ class BlueskyLatestPosts extends HTMLElement {
   }
 
   get source() {
-    const value = (this.getAttribute("source") || "user").trim().toLowerCase();
-    return ["user", "feed"].includes(value) ? value : "user";
+    const explicit = (this.getAttribute("source") || "").trim().toLowerCase();
+    if (explicit === "user" || explicit === "feed") return explicit;
+
+    // Auto-detect feed mode if a feed identifier is present
+    if (this.feedUri || this.feedUrl) return "feed";
+    return "user";
   }
 
   get handle() {
@@ -176,7 +180,7 @@ class BlueskyLatestPosts extends HTMLElement {
       }
 
       const parts = url.pathname.split("/").filter(Boolean);
-      // Expected: /profile/{handle-or-did}/feed/{rkey}
+      // /profile/{actor}/feed/{rkey}
       if (parts.length < 4 || parts[0] !== "profile" || parts[2] !== "feed") {
         throw new Error("Feed URL must look like /profile/{actor}/feed/{rkey}.");
       }
@@ -191,12 +195,9 @@ class BlueskyLatestPosts extends HTMLElement {
   }
 
   async resolveFeedUri() {
-    if (this.feedUri) {
-      return this.feedUri;
-    }
-
+    if (this.feedUri) return this.feedUri;
     if (!this.feedUrl) {
-      throw new Error("Missing feed-uri or feed-url for source='feed'.");
+      throw new Error("Missing feed-uri or feed-url for feed source.");
     }
 
     const { actor, rkey } = this.parseFeedUrl(this.feedUrl);
@@ -206,7 +207,7 @@ class BlueskyLatestPosts extends HTMLElement {
 
   async getPostsFromUser() {
     if (!this.handle) {
-      throw new Error("Missing handle for source='user'.");
+      throw new Error("Missing Bluesky handle.");
     }
 
     const did = await this.resolveDid(this.handle);
@@ -223,7 +224,7 @@ class BlueskyLatestPosts extends HTMLElement {
 
     const posts = items
       .filter((entry) => {
-        if (entry?.reason) return false;
+        if (entry?.reason) return false; // skip repost wrappers
         if (this.excludeReplies && entry?.reply) return false;
         return Boolean(entry?.post?.uri && entry?.post?.cid);
       })
@@ -268,10 +269,12 @@ class BlueskyLatestPosts extends HTMLElement {
     const wrapper = document.createElement("div");
     wrapper.className = `bsky-latest-posts__list bsky-latest-posts__list--${this.layout}`;
 
+    // Reliable grid sizing in JS
     if (this.layout === "grid") {
-      wrapper.style.setProperty("--bsky-min-width", `${this.minWidth}px`);
       if (this.columns) {
-        wrapper.style.setProperty("--bsky-columns", String(this.columns));
+        wrapper.style.gridTemplateColumns = `repeat(${this.columns}, minmax(0, 1fr))`;
+      } else {
+        wrapper.style.gridTemplateColumns = `repeat(auto-fit, minmax(${this.minWidth}px, 1fr))`;
       }
     }
 
@@ -286,6 +289,7 @@ class BlueskyLatestPosts extends HTMLElement {
 
       const viewport = document.createElement("div");
       viewport.className = "bsky-latest-posts__viewport";
+      viewport.id = `bsky-post-${index}`;
 
       const blockquote = document.createElement("blockquote");
       blockquote.className = "bluesky-embed";
@@ -316,9 +320,7 @@ class BlueskyLatestPosts extends HTMLElement {
         toggle.className = "bsky-latest-posts__toggle";
         toggle.textContent = "Expand";
         toggle.setAttribute("aria-expanded", "false");
-        toggle.setAttribute("aria-controls", `bsky-post-${index}`);
-
-        viewport.id = `bsky-post-${index}`;
+        toggle.setAttribute("aria-controls", viewport.id);
 
         toggle.addEventListener("click", () => {
           const expanded = item.classList.toggle("is-expanded");
@@ -386,13 +388,9 @@ class BlueskyLatestPosts extends HTMLElement {
 
   async load() {
     try {
-      let posts;
-
-      if (this.source === "feed") {
-        posts = await this.getPostsFromFeed();
-      } else {
-        posts = await this.getPostsFromUser();
-      }
+      const posts = this.source === "feed"
+        ? await this.getPostsFromFeed()
+        : await this.getPostsFromUser();
 
       this.renderEmbeds(posts);
     } catch (err) {

@@ -10,7 +10,6 @@ redirect_from:
 
 # demo
 <bluesky-latest-posts
-  source="user"
   handle="lonsbio.bsky.social"
   count="4"
   layout="stack"
@@ -22,7 +21,6 @@ redirect_from:
 # demo grid
 
 <bluesky-latest-posts
-  source="user"
   handle="lonsbio.bsky.social"
   count="6"
   layout="grid"
@@ -34,7 +32,6 @@ redirect_from:
 # demo grid 2
 
 <bluesky-latest-posts
-  source="user"
   handle="lonsbio.bsky.social"
   count="6"
   layout="grid"
@@ -47,7 +44,6 @@ redirect_from:
 # feed
 
 <bluesky-latest-posts
-  source="feed"
   feed-url="https://bsky.app/profile/did:plc:blxmuzekw7pzdleszr65w5zo/feed/aaanzotspf23o"
   count="6"
   layout="grid"
