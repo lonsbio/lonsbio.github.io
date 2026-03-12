@@ -27,10 +27,10 @@ redirect_from:
   layout="grid"
   min-width="340"
   gap="1rem"
-  uniform-height="true"
+  uniform-height="false"
   box-height="420"
   expandable="true"
-  show-expand-only-when-needed="true"
+  show-expand-only-when-needed="false"
   mode="system">
 </bluesky-latest-posts>
 
