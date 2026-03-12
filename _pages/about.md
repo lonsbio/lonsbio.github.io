@@ -13,6 +13,14 @@ redirect_from:
 </bluesky-latest-post>
 
 
+<bluesky-latest-posts
+  handle="lonsbio.bsky.social"
+  count="4"
+  max-check="20"
+  exclude-replies="true"
+  mode="system">
+</bluesky-latest-posts>
+
 
   <script type="module" src="https://cdn.jsdelivr.net/npm/bsky-embed@latest/dist/bsky-embed.es.js" async></script>
 
