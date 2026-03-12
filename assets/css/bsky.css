@@ -27,14 +27,58 @@ bluesky-latest-posts {
 
 .bsky-latest-posts__list--grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(
+    var(--bsky-columns, auto-fit),
+    minmax(var(--bsky-min-width, 320px), 1fr)
+  );
+}
+
+/* If columns is set, JS will pass a number. For auto-fit layouts, leave it unset. */
+.bsky-latest-posts__list--grid[style*="--bsky-columns"] {
+  grid-template-columns: repeat(var(--bsky-columns), minmax(0, 1fr));
 }
 
 .bsky-latest-posts__item {
   border-radius: 14px;
+  position: relative;
+}
+
+.bsky-latest-posts__viewport {
+  overflow: visible;
 }
 
 .bsky-latest-posts__item .bluesky-embed {
   margin: 0;
   max-width: 100%;
+}
+
+/* Uniform height mode */
+.bsky-latest-posts__item--uniform .bsky-latest-posts__viewport {
+  max-height: var(--bsky-box-height, 430px);
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.bsky-latest-posts__item--uniform.is-expanded .bsky-latest-posts__viewport {
+  max-height: none;
+  overflow: visible;
+}
+
+.bsky-latest-posts__toggle {
+  margin-top: 0.65rem;
+  display: inline-block;
+  border: 1px solid var(--border-strong, #d1d5db);
+  background: #fff;
+  color: var(--heading, #111827);
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.18s ease, background-color 0.18s ease;
+}
+
+.bsky-latest-posts__toggle:hover {
+  background: var(--bg-soft, #f8fafc);
+  transform: translateY(-1px);
 }

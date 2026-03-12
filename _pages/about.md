@@ -9,51 +9,55 @@ redirect_from:
 
 
 # demo
-
 <bluesky-latest-posts
+  source="user"
   handle="lonsbio.bsky.social"
   count="4"
   layout="stack"
-  max-check="20"
   exclude-replies="true"
   mode="system">
 </bluesky-latest-posts>
+
 
 # demo grid
 
 <bluesky-latest-posts
+  source="user"
   handle="lonsbio.bsky.social"
   count="6"
   layout="grid"
-  max-check="30"
+  min-width="360"
   exclude-replies="true"
   mode="system">
 </bluesky-latest-posts>
 
-
-<bluesky-latest-post
-  handle="lonsbio.bsky.social"
-  mode="light">
-</bluesky-latest-post>
-
+# demo grid 2
 
 <bluesky-latest-posts
+  source="user"
   handle="lonsbio.bsky.social"
-  count="4"
-  max-check="20"
-  exclude-replies="true"
+  count="6"
+  layout="grid"
+  columns="3"
   mode="system">
 </bluesky-latest-posts>
 
 
-  <script type="module" src="https://cdn.jsdelivr.net/npm/bsky-embed@latest/dist/bsky-embed.es.js" async></script>
 
-  <bsky-embed
-    username="lonsbio.bsky.social"
-    limit="1"
-    load-more="false"
-  >
-  </bsky-embed>
+# feed
+
+<bluesky-latest-posts
+  source="feed"
+  feed-url="https://bsky.app/profile/did:plc:blxmuzekw7pzdleszr65w5zo/feed/aaanzotspf23o"
+  count="6"
+  layout="grid"
+  min-width="340"
+  uniform-height="true"
+  box-height="420"
+  expandable="true"
+  mode="system">
+</bluesky-latest-posts>
+
 
 
 
