@@ -1,0 +1,808 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bluesky Latest Posts – Showcase</title>
+  <link rel="stylesheet" href="bluesky-latest-posts.css" />
+  <style>
+    :root {
+      --page-bg: #f8fafc;
+      --panel-bg: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--page-bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.5;
+    }
+
+    a {
+      color: var(--accent);
+    }
+
+    .page {
+      width: min(1200px, calc(100% - 2rem));
+      margin: 2rem auto 4rem;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #eff6ff 0%, #ffffff 55%, #f8fafc 100%);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 1.5rem 1.5rem 1.25rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+      margin: 0 0 0.4rem;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      line-height: 1.1;
+    }
+
+    .hero p {
+      margin: 0.4rem 0;
+      color: var(--muted);
+      max-width: 75ch;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel,
+    .section {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .panel {
+      top: 1rem;
+      padding: 1rem;
+    }
+
+    .panel h2,
+    .section h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1.15rem;
+    }
+
+    .panel p,
+    .section p {
+      color: var(--muted);
+    }
+
+    .control-group {
+      margin-bottom: 1rem;
+    }
+
+    .control-group label {
+      display: block;
+      font-weight: 700;
+      font-size: 0.92rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .control-group input,
+    .control-group select {
+      width: 100%;
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      padding: 0.72rem 0.82rem;
+      font: inherit;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .control-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .help {
+      font-size: 0.86rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 0.75rem;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--border-strong);
+      background: #fff;
+      color: var(--text);
+      border-radius: 999px;
+      padding: 0.72rem 1rem;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .content {
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    .section {
+      padding: 1rem 1rem 1.2rem;
+    }
+
+    .section-header {
+      margin-bottom: 1rem;
+    }
+
+    .section-header h2 {
+      margin-bottom: 0.35rem;
+    }
+
+    .section-header p {
+      margin: 0;
+    }
+
+    .demo-box {
+      padding: 1rem;
+      border: 1px dashed var(--border-strong);
+      border-radius: 16px;
+      background: #fcfdff;
+      margin-bottom: 1rem;
+    }
+
+    .demo-title {
+      font-weight: 800;
+      margin-bottom: 0.35rem;
+    }
+
+    .demo-subtitle {
+      font-size: 0.92rem;
+      color: var(--muted);
+      margin-bottom: 0.85rem;
+    }
+
+    pre {
+      margin: 0;
+      overflow: auto;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 14px;
+      font-family: var(--mono);
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: var(--mono);
+    }
+
+    .note {
+      background: var(--accent-soft);
+      border: 1px solid #bfdbfe;
+      color: #1e3a8a;
+      border-radius: 14px;
+      padding: 0.9rem 1rem;
+      font-size: 0.92rem;
+      margin-top: 0.75rem;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .small {
+      font-size: 0.9rem;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 0.6rem 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .pill-list li {
+      background: #eef2ff;
+      color: #3730a3;
+      border: 1px solid #c7d2fe;
+      border-radius: 999px;
+      padding: 0.35rem 0.65rem;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <h1>Bluesky Latest Posts Showcase</h1>
+      <p>
+        Demo page for the <code>&lt;bluesky-latest-posts&gt;</code> custom element.
+        Use the panel to try a handle or feed URL, then scroll through example configurations
+        covering the supported parameters.
+      </p>
+      <ul class="pill-list">
+        <li>source=user</li>
+        <li>source=feed</li>
+        <li>layout=stack</li>
+        <li>layout=grid</li>
+        <li>uniform-height</li>
+        <li>expandable</li>
+        <li>mode light/dark/system</li>
+      </ul>
+    </header>
+
+    <div class="layout">
+      <aside class="panel">
+        <h2>Live demo controls</h2>
+        <p class="small">
+          Enter a handle or feed URL. The user handle is prefilled with <code>biorxiv-bioinfo.bsky.social</code>.
+        </p>
+
+        <div class="control-group">
+          <label for="demo-handle">User handle</label>
+          <input id="demo-handle" type="text" placeholder="e.g. user.bsky.social" value="biorxiv-bioinfo.bsky.social" />
+          <div class="help">Used when source is <code>user</code>.</div>
+        </div>
+
+        <div class="control-group">
+          <label for="demo-feed-url">Feed URL</label>
+          <input id="demo-feed-url" type="text" placeholder="https://bsky.app/profile/{actor}/feed/{rkey}" />
+          <div class="help">Used when source is <code>feed</code>.</div>
+        </div>
+
+        <div class="control-group">
+          <label for="demo-source">Source</label>
+          <select id="demo-source">
+            <option value="user" selected>user</option>
+            <option value="feed">feed</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="demo-layout">Layout</label>
+          <select id="demo-layout">
+            <option value="stack" selected>stack</option>
+            <option value="grid">grid</option>
+          </select>
+        </div>
+
+        <div class="control-row">
+          <div class="control-group">
+            <label for="demo-count">Count</label>
+            <input id="demo-count" type="number" min="1" max="20" value="3" />
+          </div>
+          <div class="control-group">
+            <label for="demo-max-check">Max check</label>
+            <input id="demo-max-check" type="number" min="1" max="100" value="12" />
+          </div>
+        </div>
+
+        <div class="control-row">
+          <div class="control-group">
+            <label for="demo-columns">Columns</label>
+            <input id="demo-columns" type="number" min="1" max="12" value="3" />
+          </div>
+          <div class="control-group">
+            <label for="demo-min-width">Min width</label>
+            <input id="demo-min-width" type="number" min="180" value="280" />
+          </div>
+        </div>
+
+        <div class="control-row">
+          <div class="control-group">
+            <label for="demo-gap">Gap</label>
+            <input id="demo-gap" type="text" value="1rem" />
+          </div>
+          <div class="control-group">
+            <label for="demo-box-height">Box height</label>
+            <input id="demo-box-height" type="number" min="160" value="360" />
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="demo-mode">Mode</label>
+          <select id="demo-mode">
+            <option value="system" selected>system</option>
+            <option value="light">light</option>
+            <option value="dark">dark</option>
+          </select>
+        </div>
+
+        <div class="control-row">
+          <label><input id="demo-exclude-replies" type="checkbox" checked /> exclude-replies</label>
+          <label><input id="demo-uniform-height" type="checkbox" /> uniform-height</label>
+        </div>
+
+        <div class="control-row" style="margin-top:0.75rem;">
+          <label><input id="demo-expandable" type="checkbox" checked /> expandable</label>
+          <label><input id="demo-show-expand-only" type="checkbox" checked /> show-expand-only-when-needed</label>
+        </div>
+
+        <div class="button-row">
+          <button class="primary" id="apply-demo">Apply to live demo</button>
+          <button id="reset-demo">Reset demo</button>
+        </div>
+
+        <div class="note">
+          Placeholder inputs are included for a user handle and feed URL. This component supports user feeds and custom feeds; it does not currently have a separate single-post input mode.
+        </div>
+      </aside>
+
+      <main class="content">
+        <section class="section">
+          <div class="section-header">
+            <h2>Live demo</h2>
+            <p>The widget below updates from the control panel.</p>
+          </div>
+
+          <div class="demo-box">
+            <div class="demo-title">Interactive example</div>
+            <div class="demo-subtitle">Edit values in the left panel, then apply them here.</div>
+            <div id="live-demo-slot"></div>
+          </div>
+
+          <pre id="live-demo-code"></pre>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2>Quick start</h2>
+            <p>Minimal usage for a user feed.</p>
+          </div>
+
+          <div class="demo-box">
+            <div class="demo-title">Minimal user example</div>
+            <div class="demo-subtitle">Defaults to stack layout and system theme mode.</div>
+            <bluesky-latest-posts handle="biorxiv-bioinfo.bsky.social"></bluesky-latest-posts>
+          </div>
+
+<pre>&lt;bluesky-latest-posts
+  handle="biorxiv-bioinfo.bsky.social"&gt;
+&lt;/bluesky-latest-posts&gt;</pre>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2>User-source examples</h2>
+            <p>Examples using the author feed endpoint.</p>
+          </div>
+
+          <div class="demo-box">
+            <div class="demo-title">User, stack, exclude replies</div>
+            <div class="demo-subtitle">A standard vertical feed with a small count.</div>
+            <bluesky-latest-posts
+              source="user"
+              handle="biorxiv-bioinfo.bsky.social"
+              exclude-replies="true"
+              count="2"
+              max-check="10"
+              layout="stack">
+            </bluesky-latest-posts>
+          </div>
+
+<pre>&lt;bluesky-latest-posts
+  source="user"
+  handle="biorxiv-bioinfo.bsky.social"
+  exclude-replies="true"
+  count="2"
+  max-check="10"
+  layout="stack"&gt;
+&lt;/bluesky-latest-posts&gt;</pre>
+
+          <div class="demo-box" style="margin-top:1rem;">
+            <div class="demo-title">User, grid, explicit columns</div>
+            <div class="demo-subtitle">Uses grid layout with fixed columns.</div>
+            <bluesky-latest-posts
+              source="user"
+              handle="biorxiv-bioinfo.bsky.social"
+              count="4"
+              max-check="12"
+              layout="grid"
+              columns="2"
+              gap="1rem">
+            </bluesky-latest-posts>
+          </div>
+
+<pre>&lt;bluesky-latest-posts
+  source="user"
+  handle="biorxiv-bioinfo.bsky.social"
+  count="4"
+  max-check="12"
+  layout="grid"
+  columns="2"
+  gap="1rem"&gt;
+&lt;/bluesky-latest-posts&gt;</pre>
+
+          <div class="demo-box" style="margin-top:1rem;">
+            <div class="demo-title">User, grid, auto-fit by min-width</div>
+            <div class="demo-subtitle">No columns attribute; cards auto-fit using min-width.</div>
+            <bluesky-latest-posts
+              source="user"
+              handle="biorxiv-bioinfo.bsky.social"
+              count="4"
+              max-check="12"
+              layout="grid"
+              min-width="260"
+              gap="1.25rem">
+            </bluesky-latest-posts>
+          </div>
+
+<pre>&lt;bluesky-latest-posts
+  source="user"
+  handle="biorxiv-bioinfo.bsky.social"
+  count="4"
+  max-check="12"
+  layout="grid"
+  min-width="260"
+  gap="1.25rem"&gt;
+&lt;/bluesky-latest-posts&gt;</pre>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2>Uniform-height examples</h2>
+            <p>Examples showing height clipping and expansion controls.</p>
+          </div>
+
+          <div class="demo-box">
+            <div class="demo-title">Uniform height + expandable</div>
+            <div class="demo-subtitle">Cards clip to the given height and show an expand button when needed.</div>
+            <bluesky-latest-posts
+              source="user"
+              handle="biorxiv-bioinfo.bsky.social"
+              count="3"
+              max-check="10"
+              layout="grid"
+              columns="3"
+              uniform-height="true"
+              box-height="330"
+              expandable="true"
+              show-expand-only-when-needed="true">
+            </bluesky-latest-posts>
+          </div>
+
+<pre>&lt;bluesky-latest-posts
+  source="user"
+  handle="biorxiv-bioinfo.bsky.social"
+  count="3"
+  max-check="10"
+  layout="grid"
+  columns="3"
+  uniform-height="true"
+  box-height="330"
+  expandable="true"
+  show-expand-only-when-needed="true"&gt;
+&lt;/bluesky-latest-posts&gt;</pre>
+
+          <div class="demo-box" style="margin-top:1rem;">
+            <div class="demo-title">Uniform height without expansion</div>
+            <div class="demo-subtitle">Useful if you want visually aligned cards with no manual expansion.</div>
+            <bluesky-latest-posts
+              source="user"
+              handle="biorxiv-bioinfo.bsky.social"
+              count="3"
+              max-check="10"
+              layout="grid"
+              columns="3"
+              uniform-height="true"
+              box-height="280"
+              expandable="false">
+            </bluesky-latest-posts>
+          </div>
+
+<pre>&lt;bluesky-latest-posts
+  source="user"
+  handle="biorxiv-bioinfo.bsky.social"
+  count="3"
+  max-check="10"
+  layout="grid"
+  columns="3"
+  uniform-height="true"
+  box-height="280"
+  expandable="false"&gt;
+&lt;/bluesky-latest-posts&gt;</pre>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2>Theme mode examples</h2>
+            <p>Examples for <code>mode="light"</code>, <code>mode="dark"</code>, and <code>mode="system"</code>.</p>
+          </div>
+
+          <div class="demo-box">
+            <div class="demo-title">Light mode</div>
+            <bluesky-latest-posts
+              source="user"
+              handle="biorxiv-bioinfo.bsky.social"
+              count="1"
+              mode="light">
+            </bluesky-latest-posts>
+          </div>
+
+<pre>&lt;bluesky-latest-posts
+  source="user"
+  handle="biorxiv-bioinfo.bsky.social"
+  count="1"
+  mode="light"&gt;
+&lt;/bluesky-latest-posts&gt;</pre>
+
+          <div class="demo-box" style="margin-top:1rem;">
+            <div class="demo-title">Dark mode</div>
+            <bluesky-latest-posts
+              source="user"
+              handle="biorxiv-bioinfo.bsky.social"
+              count="1"
+              mode="dark">
+            </bluesky-latest-posts>
+          </div>
+
+<pre>&lt;bluesky-latest-posts
+  source="user"
+  handle="biorxiv-bioinfo.bsky.social"
+  count="1"
+  mode="dark"&gt;
+&lt;/bluesky-latest-posts&gt;</pre>
+
+          <div class="demo-box" style="margin-top:1rem;">
+            <div class="demo-title">System mode</div>
+            <bluesky-latest-posts
+              source="user"
+              handle="biorxiv-bioinfo.bsky.social"
+              count="1"
+              mode="system">
+            </bluesky-latest-posts>
+          </div>
+
+<pre>&lt;bluesky-latest-posts
+  source="user"
+  handle="biorxiv-bioinfo.bsky.social"
+  count="1"
+  mode="system"&gt;
+&lt;/bluesky-latest-posts&gt;</pre>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2>Feed-source examples</h2>
+            <p>Examples using <code>source="feed"</code>. Replace the placeholder feed URLs with real feed URLs.</p>
+          </div>
+
+          <div class="demo-box">
+            <div class="demo-title">Feed by feed-url</div>
+            <div class="demo-subtitle">This is a placeholder; replace with a real Bluesky feed URL.</div>
+            <bluesky-latest-posts
+              source="feed"
+              feed-url="https://bsky.app/profile/example.com/feed/placeholder"
+              count="3"
+              max-check="12"
+              layout="stack">
+            </bluesky-latest-posts>
+          </div>
+
+<pre>&lt;bluesky-latest-posts
+  source="feed"
+  feed-url="https://bsky.app/profile/example.com/feed/placeholder"
+  count="3"
+  max-check="12"
+  layout="stack"&gt;
+&lt;/bluesky-latest-posts&gt;</pre>
+
+          <div class="demo-box" style="margin-top:1rem;">
+            <div class="demo-title">Feed by feed-uri</div>
+            <div class="demo-subtitle">Direct AT URI form if you already know the DID and generator key.</div>
+            <bluesky-latest-posts
+              source="feed"
+              feed-uri="at://did:plc:placeholder/app.bsky.feed.generator/placeholder"
+              count="3"
+              max-check="12"
+              layout="grid"
+              columns="3">
+            </bluesky-latest-posts>
+          </div>
+
+<pre>&lt;bluesky-latest-posts
+  source="feed"
+  feed-uri="at://did:plc:placeholder/app.bsky.feed.generator/placeholder"
+  count="3"
+  max-check="12"
+  layout="grid"
+  columns="3"&gt;
+&lt;/bluesky-latest-posts&gt;</pre>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2>Parameter reference</h2>
+            <p>Supported attributes for the component.</p>
+          </div>
+
+<pre>source="user|feed"
+handle="biorxiv-bioinfo.bsky.social"
+feed-uri="at://did:.../app.bsky.feed.generator/..."
+feed-url="https://bsky.app/profile/{actor}/feed/{rkey}"
+mode="light|dark|system"
+exclude-replies="true|false"
+max-check="1..100"
+count="1..20"
+layout="stack|grid"
+columns="1..12"
+min-width="180+"
+gap="CSS length, e.g. 1rem"
+uniform-height="true|false"
+box-height="160+"
+expandable="true|false"
+show-expand-only-when-needed="true|false"</pre>
+
+          <div class="note">
+            This component currently supports recent posts from a user or feed. It does not currently accept individual post IDs as an input mode.
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="bluesky-latest-posts.js"></script>
+  <script>
+    const DEFAULT_HANDLE = "biorxiv-bioinfo.bsky.social";
+
+    function buildLiveDemoElement() {
+      const source = document.getElementById("demo-source").value;
+      const handle = document.getElementById("demo-handle").value.trim();
+      const feedUrl = document.getElementById("demo-feed-url").value.trim();
+      const layout = document.getElementById("demo-layout").value;
+      const count = document.getElementById("demo-count").value;
+      const maxCheck = document.getElementById("demo-max-check").value;
+      const columns = document.getElementById("demo-columns").value.trim();
+      const minWidth = document.getElementById("demo-min-width").value;
+      const gap = document.getElementById("demo-gap").value.trim();
+      const boxHeight = document.getElementById("demo-box-height").value;
+      const mode = document.getElementById("demo-mode").value;
+      const excludeReplies = document.getElementById("demo-exclude-replies").checked;
+      const uniformHeight = document.getElementById("demo-uniform-height").checked;
+      const expandable = document.getElementById("demo-expandable").checked;
+      const showExpandOnly = document.getElementById("demo-show-expand-only").checked;
+
+      const el = document.createElement("bluesky-latest-posts");
+      el.setAttribute("source", source);
+      el.setAttribute("mode", mode);
+      el.setAttribute("exclude-replies", String(excludeReplies));
+      el.setAttribute("max-check", String(maxCheck));
+      el.setAttribute("count", String(count));
+      el.setAttribute("layout", layout);
+      el.setAttribute("min-width", String(minWidth));
+      el.setAttribute("gap", gap || "1rem");
+      el.setAttribute("uniform-height", String(uniformHeight));
+      el.setAttribute("box-height", String(boxHeight));
+      el.setAttribute("expandable", String(expandable));
+      el.setAttribute("show-expand-only-when-needed", String(showExpandOnly));
+
+      if (columns) {
+        el.setAttribute("columns", String(columns));
+      }
+
+      if (source === "feed") {
+        if (feedUrl) {
+          el.setAttribute("feed-url", feedUrl);
+        }
+      } else {
+        el.setAttribute("handle", handle || DEFAULT_HANDLE);
+      }
+
+      return el;
+    }
+
+    function buildLiveDemoCode() {
+      const source = document.getElementById("demo-source").value;
+      const handle = document.getElementById("demo-handle").value.trim();
+      const feedUrl = document.getElementById("demo-feed-url").value.trim();
+      const layout = document.getElementById("demo-layout").value;
+      const count = document.getElementById("demo-count").value;
+      const maxCheck = document.getElementById("demo-max-check").value;
+      const columns = document.getElementById("demo-columns").value.trim();
+      const minWidth = document.getElementById("demo-min-width").value;
+      const gap = document.getElementById("demo-gap").value.trim();
+      const boxHeight = document.getElementById("demo-box-height").value;
+      const mode = document.getElementById("demo-mode").value;
+      const excludeReplies = document.getElementById("demo-exclude-replies").checked;
+      const uniformHeight = document.getElementById("demo-uniform-height").checked;
+      const expandable = document.getElementById("demo-expandable").checked;
+      const showExpandOnly = document.getElementById("demo-show-expand-only").checked;
+
+      const attrs = [
+        `source="${source}"`,
+        source === "feed"
+          ? `feed-url="${feedUrl || 'https://bsky.app/profile/example.com/feed/placeholder'}"`
+          : `handle="${handle || DEFAULT_HANDLE}"`,
+        `mode="${mode}"`,
+        `exclude-replies="${excludeReplies}"`,
+        `max-check="${maxCheck}"`,
+        `count="${count}"`,
+        `layout="${layout}"`,
+        columns ? `columns="${columns}"` : null,
+        `min-width="${minWidth}"`,
+        `gap="${gap || '1rem'}"`,
+        `uniform-height="${uniformHeight}"`,
+        `box-height="${boxHeight}"`,
+        `expandable="${expandable}"`,
+        `show-expand-only-when-needed="${showExpandOnly}"`
+      ].filter(Boolean);
+
+      return `<bluesky-latest-posts\n  ${attrs.join("\n  ")}>\n</bluesky-latest-posts>`;
+    }
+
+    function renderLiveDemo() {
+      const slot = document.getElementById("live-demo-slot");
+      slot.innerHTML = "";
+      slot.appendChild(buildLiveDemoElement());
+      document.getElementById("live-demo-code").textContent = buildLiveDemoCode();
+    }
+
+    function resetDemo() {
+      document.getElementById("demo-handle").value = DEFAULT_HANDLE;
+      document.getElementById("demo-feed-url").value = "";
+      document.getElementById("demo-source").value = "user";
+      document.getElementById("demo-layout").value = "stack";
+      document.getElementById("demo-count").value = "3";
+      document.getElementById("demo-max-check").value = "12";
+      document.getElementById("demo-columns").value = "3";
+      document.getElementById("demo-min-width").value = "280";
+      document.getElementById("demo-gap").value = "1rem";
+      document.getElementById("demo-box-height").value = "360";
+      document.getElementById("demo-mode").value = "system";
+      document.getElementById("demo-exclude-replies").checked = true;
+      document.getElementById("demo-uniform-height").checked = false;
+      document.getElementById("demo-expandable").checked = true;
+      document.getElementById("demo-show-expand-only").checked = true;
+      renderLiveDemo();
+    }
+
+    document.getElementById("apply-demo").addEventListener("click", renderLiveDemo);
+    document.getElementById("reset-demo").addEventListener("click", resetDemo);
+
+    renderLiveDemo();
+  </script>
+</body>
+</html>
