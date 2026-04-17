@@ -367,11 +367,15 @@ class BlueskyLatestPosts extends HTMLElement {
     wrapper.style.gap = gap;
 
     if (layout === "grid") {
+      wrapper.style.display = "grid";
       if (columns) {
         wrapper.style.gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`;
       } else {
         wrapper.style.gridTemplateColumns = `repeat(auto-fit, minmax(${minWidth}px, 1fr))`;
       }
+    } else {
+      wrapper.style.display = "grid";
+      wrapper.style.gridTemplateColumns = "minmax(0, 1fr)";
     }
 
     posts.forEach((post, index) => {
